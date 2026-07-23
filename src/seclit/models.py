@@ -132,6 +132,22 @@ class RetrievedChunk:
         return f"pp. {self.page_start}–{self.page_end}"
 
     @property
+    def source_url(self) -> str:
+        """Link to the source PDF, deep-linked to the first cited page.
+
+        PDF viewers honour the ``#page=N`` fragment, so a citation lands the
+        reader on the page the claim came from rather than on page one of a
+        thirty-page paper. This is the payoff for carrying page provenance all
+        the way through the pipeline — the number is already exact, so the link
+        can be too.
+        """
+        if not self.pdf_url:
+            return ""
+        if self.page_start:
+            return f"{self.pdf_url}#page={self.page_start}"
+        return self.pdf_url
+
+    @property
     def citation(self) -> str:
         author = self.authors.split(";")[0].strip() if self.authors else "Unknown"
         if self.authors and len(self.authors.split(";")) > 1:

@@ -172,3 +172,36 @@ class TestAgainstRealIndex:
         retriever = Retriever(self.store)
         for mode in ("dense", "sparse", "hybrid"):
             assert retriever.search("intrusion detection", mode=mode, top_k=5)
+
+
+class TestSourceLinks:
+    """A citation the reader can't verify in one click is a citation most
+    readers will take on trust. Page provenance is carried through the whole
+    pipeline precisely so the link can be exact."""
+
+    def test_deep_links_to_the_cited_page(self):
+        c = chunk("a::1")
+        c.pdf_url = "https://arxiv.org/pdf/2309.03582v1"
+        c.page_start, c.page_end = 19, 20
+
+        assert c.source_url == "https://arxiv.org/pdf/2309.03582v1#page=19"
+
+    def test_links_to_first_page_of_a_range(self):
+        c = chunk("a::1")
+        c.pdf_url = "https://arxiv.org/pdf/x"
+        c.page_start, c.page_end = 7, 9
+
+        assert c.source_url.endswith("#page=7")
+
+    def test_empty_when_no_source_url_is_known(self):
+        c = chunk("a::1")
+        c.pdf_url = ""
+
+        assert c.source_url == ""
+
+    def test_omits_anchor_when_page_is_unknown(self):
+        c = chunk("a::1")
+        c.pdf_url = "https://arxiv.org/pdf/x"
+        c.page_start = 0
+
+        assert c.source_url == "https://arxiv.org/pdf/x"

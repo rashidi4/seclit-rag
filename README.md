@@ -21,6 +21,12 @@ reported with every response:
 - **Citation validity** — share of citations pointing at a real retrieved excerpt
 - **Grounding** — share of factual sentences carrying any citation
 
+Each cited source links straight to **its own page** of the original PDF
+(`https://arxiv.org/pdf/2309.03582v1#page=19`), so verifying a claim is one
+click rather than a hunt through a thirty-page paper. That link can be exact
+because page provenance is carried untouched from extraction through to the
+answer.
+
 This turns "minimises hallucinations" from a claim into a measurement.
 
 **What it does not catch:** validity measures whether a marker resolves to a

@@ -46,6 +46,16 @@ def render_sources(chunks, key_prefix: str) -> None:
         section = f" · {chunk.section}" if chunk.section else ""
         score = f" · relevance {chunk.rerank_score:.2f}" if chunk.rerank_score is not None else ""
         label = f"[{chunk.marker}] {chunk.title} — {chunk.page_label}{section}"
+
+        # The link sits outside the expander so verifying a citation is one
+        # click, not two. A source you have to go hunting for is a source most
+        # readers will take on trust instead.
+        if chunk.source_url:
+            st.markdown(
+                f"↗ [Open **{chunk.page_label}** of this paper on arXiv]({chunk.source_url})",
+                help="Opens the PDF at the exact page this claim was drawn from.",
+            )
+
         with st.expander(label, expanded=False):
             st.markdown(f"**{chunk.title}**")
             st.caption(
@@ -53,8 +63,8 @@ def render_sources(chunks, key_prefix: str) -> None:
                 f"{chunk.page_label}{section}{score}"
             )
             st.text(chunk.text)
-            if chunk.pdf_url:
-                st.markdown(f"[Open PDF]({chunk.pdf_url})")
+            if chunk.source_url:
+                st.markdown(f"[Open PDF at {chunk.page_label}]({chunk.source_url})")
 
 
 def render_diagnostics(answer) -> None:
