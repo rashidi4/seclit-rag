@@ -1,0 +1,40 @@
+{"question": "How can an attacker deny node availability by abusing container image pulls?", "expected_papers": ["2401.10582"], "subtopic": "cloud_security", "note": "specific attack mechanism"}
+{"question": "What practices harden a Kubernetes cluster against misconfiguration?", "expected_papers": ["2006.15275", "2409.04647", "2506.21134"], "subtopic": "cloud_security"}
+{"question": "Is WebAssembly a stronger isolation boundary than a Linux container?", "expected_papers": ["2411.03344"], "subtopic": "cloud_security", "note": "comparison framed without using either title"}
+{"question": "Can a language model automatically repair insecure container configuration files?", "expected_papers": ["2502.02009", "2112.12595"], "subtopic": "cloud_security"}
+{"question": "How is supply chain integrity enforced inside Argo Workflows?", "expected_papers": ["2503.20079"], "subtopic": "cloud_security", "note": "SLSA - rare literal, favours BM25"}
+{"question": "What approach monitors file activity inside containers in real time?", "expected_papers": ["2509.16030"], "subtopic": "cloud_security"}
+{"question": "How can kernel audit logging be made container-aware?", "expected_papers": ["2111.02481"], "subtopic": "cloud_security"}
+{"question": "How do confidential computing and remote attestation apply at the pod level?", "expected_papers": ["2606.03323"], "subtopic": "cloud_security"}
+{"question": "What is the practical difference between agent-based and agent-less sandboxes for observing malware?", "expected_papers": ["1904.02100"], "subtopic": "malware_analysis"}
+{"question": "How well can large language models interpret compiled binary code?", "expected_papers": ["2404.09836", "2509.23970", "2501.04848"], "subtopic": "malware_analysis"}
+{"question": "How does malware detect that it is running inside an analysis environment and evade it?", "expected_papers": ["2411.05982"], "subtopic": "malware_analysis"}
+{"question": "What did researchers learn from reverse engineering the Citadel banking trojan?", "expected_papers": ["1406.5569"], "subtopic": "malware_analysis", "note": "named entity - favours BM25"}
+{"question": "How can we track the way malware families change over time?", "expected_papers": ["2107.01627"], "subtopic": "malware_analysis"}
+{"question": "How can training data be augmented to improve machine learning malware classifiers?", "expected_papers": ["2206.03265"], "subtopic": "malware_analysis"}
+{"question": "Can AI agents used for reverse engineering themselves be attacked?", "expected_papers": ["2605.30667"], "subtopic": "malware_analysis"}
+{"question": "Which machine learning algorithms perform best for detecting network intrusions?", "expected_papers": ["2111.01383", "2105.04301", "2105.13698"], "subtopic": "network_security"}
+{"question": "How do you deal with class imbalance in intrusion detection training data?", "expected_papers": ["2110.03445", "2105.04301"], "subtopic": "network_security", "note": "ADASYN / GAN techniques"}
+{"question": "How does clustering help intrusion detection in wireless sensor and ad hoc networks?", "expected_papers": ["1108.2656", "1101.0241", "1208.3772"], "subtopic": "network_security"}
+{"question": "What role does hyperdimensional computing play in IoT intrusion detection?", "expected_papers": ["2503.03037"], "subtopic": "network_security", "note": "rare technical term"}
+{"question": "How does federated learning change where you place an IDS in an RPL network?", "expected_papers": ["2303.16561"], "subtopic": "network_security", "note": "RPL is a rare literal"}
+{"question": "How can intrusion detection decisions be made explainable to an analyst?", "expected_papers": ["2604.06266"], "subtopic": "network_security"}
+{"question": "How is malicious network traffic categorised for detection purposes?", "expected_papers": ["1806.03516"], "subtopic": "network_security"}
+{"question": "How are attack knowledge graphs built automatically from threat reports?", "expected_papers": ["2111.07093", "2506.16968"], "subtopic": "threat_intelligence"}
+{"question": "What methods attribute an advanced persistent threat campaign to a specific actor?", "expected_papers": ["2409.11415", "2402.12743", "2409.16400"], "subtopic": "threat_intelligence"}
+{"question": "Who was responsible for the WhisperGate wiper attack?", "expected_papers": ["2510.18484"], "subtopic": "threat_intelligence", "note": "named campaign - strong BM25 signal"}
+{"question": "Can attribution based on tactics, techniques and procedures be defeated by synthetic attacks?", "expected_papers": ["2606.07158"], "subtopic": "threat_intelligence"}
+{"question": "How distinctive are the behaviours of different threat groups?", "expected_papers": ["2506.10645"], "subtopic": "threat_intelligence"}
+{"question": "What cultural factors shape how cybercriminal groups operate?", "expected_papers": ["2411.02548"], "subtopic": "threat_intelligence"}
+{"question": "How many undiscovered vulnerabilities are likely to remain in a piece of software?", "expected_papers": ["2304.09259"], "subtopic": "vulnerability_management"}
+{"question": "How common are CVEs with a CVSS score of 9.0 or above?", "expected_papers": ["2604.20765"], "subtopic": "vulnerability_management", "note": "CVSS / 9.0 - literal identifiers"}
+{"question": "Why do maintainers delay or skip applying security patches?", "expected_papers": ["2502.17703", "2607.13206"], "subtopic": "vulnerability_management"}
+{"question": "How should competing vulnerability patches be prioritised for remediation?", "expected_papers": ["2502.11143"], "subtopic": "vulnerability_management"}
+{"question": "Are published vulnerability detection datasets actually solvable, or are they flawed?", "expected_papers": ["2506.03651", "2401.13169", "2103.05160"], "subtopic": "vulnerability_management"}
+{"question": "How can a vulnerable code pattern be located and patched using program slicing?", "expected_papers": ["2505.02349"], "subtopic": "vulnerability_management"}
+{"question": "How does a zero trust model limit an attacker's lateral movement?", "expected_papers": ["2309.03582", "2508.15776", "2602.09078"], "subtopic": "zero_trust"}
+{"question": "How can zero trust principles be applied to Java software supply chain dependencies?", "expected_papers": ["2310.14117"], "subtopic": "zero_trust"}
+{"question": "What lightweight access control protocol suits resource-constrained mobile devices under zero trust?", "expected_papers": ["2309.01293"], "subtopic": "zero_trust"}
+{"question": "How can insider threats be detected continuously rather than at login?", "expected_papers": ["2601.06708"], "subtopic": "zero_trust"}
+{"question": "Should a service mesh control plane be fully trusted?", "expected_papers": ["2210.12610"], "subtopic": "zero_trust"}
+{"question": "How is identity management decentralised in a zero trust system?", "expected_papers": ["2509.25566", "2410.21870"], "subtopic": "zero_trust"}

@@ -1,0 +1,25 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Local configuration
+.env
+
+# Corpus and index — rebuilt with `seclit fetch` and `seclit index`.
+# The manifest is tracked so the exact corpus is reproducible and verifiable.
+data/pdfs/
+data/chroma/
+data/catalog.db
+!data/corpus_manifest.jsonl
+
+# Tooling
+.pytest_cache/
+.ruff_cache/
+.DS_Store

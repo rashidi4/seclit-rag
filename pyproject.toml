@@ -1,0 +1,65 @@
+[project]
+name = "seclit"
+version = "0.1.0"
+description = "Local RAG research assistant for cybersecurity literature, with page-accurate validated citations."
+readme = "README.md"
+authors = [
+    { name = "Rashidi Barnett", email = "rashidibarnett@gmail.com" }
+]
+requires-python = ">=3.12,<3.13"
+license = { text = "MIT" }
+
+dependencies = [
+    # PDF extraction — page-level provenance
+    "pymupdf>=1.24",
+    # Vector store
+    "chromadb>=1.0,<2.0",
+    # Embeddings + cross-encoder reranking
+    "sentence-transformers>=3.0",
+    "torch>=2.4",
+    # Sparse retrieval
+    "rank-bm25>=0.2.2",
+    # UI
+    "streamlit>=1.40",
+    # Local LLM provider
+    "ollama>=0.4",
+    # Corpus acquisition
+    "httpx>=0.27",
+    # Config
+    "pydantic>=2.7",
+    "pydantic-settings>=2.3",
+    "python-dotenv>=1.0",
+]
+
+[project.optional-dependencies]
+# Cloud LLM providers are optional — the default path is fully local.
+anthropic = ["anthropic>=0.40"]
+openai = ["openai>=1.50"]
+gemini = ["google-genai>=1.0"]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.6",
+]
+
+[project.scripts]
+seclit = "seclit.cli:main"
+
+[build-system]
+requires = ["uv_build>=0.11.8,<0.12.0"]
+build-backend = "uv_build"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "slow: tests that load models or hit the network",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+ignore = ["E501"]
