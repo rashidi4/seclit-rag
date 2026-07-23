@@ -23,6 +23,14 @@ reported with every response:
 
 This turns "minimises hallucinations" from a claim into a measurement.
 
+**What it does not catch:** validity measures whether a marker resolves to a
+retrieved excerpt — not whether that excerpt actually supports the sentence. A
+model citing a real source for a claim it doesn't make still scores 100%.
+Closing that gap needs entailment checking, which is documented as the next
+increment in [ARCHITECTURE.md](ARCHITECTURE.md#what-this-does-not-catch). What
+exists today eliminates *fabricated sources*; it does not yet eliminate
+*misattributed claims*.
+
 ---
 
 ## Quick start

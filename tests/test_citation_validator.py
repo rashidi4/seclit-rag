@@ -36,6 +36,19 @@ class TestExtractMarkers:
         # Validity is measured over citations made, not distinct sources.
         assert extract_markers("A [^c1]. B [^c1].") == ["c1", "c1"]
 
+    def test_bare_caret_digits_are_accepted(self):
+        """Regression: gemma3:12b emits [^7] without the 'c'. Rejecting that
+        form silently zeroed the grounding metric on real answers."""
+        assert extract_markers("Segmentation limits movement [^7].") == ["c7"]
+        assert extract_markers("Both agree [^7, 9].") == ["c7", "c9"]
+
+    def test_bare_digits_require_a_caret(self):
+        """Without the caret, '(2020)' would parse as marker c2020 and a year
+        citation would be silently mangled."""
+        assert extract_markers("Published (2020) by the team.") == []
+        assert extract_markers("See reference [1] for detail.") == []
+        assert extract_markers("Table (7) shows results.") == []
+
     def test_ignores_unrelated_brackets(self):
         assert extract_markers("See [1] and (Smith 2020) and [table 2].") == []
 
@@ -150,3 +163,34 @@ def test_report_defaults_are_safe():
     assert report.validity_rate == 1.0
     assert report.grounded_rate == 1.0
     assert report.is_clean
+
+
+class TestPromptLeakage:
+    """Regression guard for a real failure found during browser testing.
+
+    The prompt's formatting example originally used realistic prose including an
+    invented "40% reduction in lateral movement" statistic. gemma3:12b copied it
+    almost verbatim into a real answer, citing valid markers — so the validator
+    scored it 100% valid and 100% grounded while the headline claim came from
+    the prompt rather than the corpus. A plausible example is an instruction to
+    plagiarise it.
+    """
+
+    def test_format_example_contains_no_reusable_claims(self):
+        from seclit.generate.prompt import FORMAT_EXAMPLE
+
+        # No fabricated statistics for a model to lift.
+        assert "40%" not in FORMAT_EXAMPLE
+        assert "%" not in FORMAT_EXAMPLE.replace("100%", "")
+
+        # Placeholders, not prose that could pass as a finding.
+        assert "<" in FORMAT_EXAMPLE and ">" in FORMAT_EXAMPLE
+
+    def test_format_example_still_demonstrates_the_marker_syntax(self):
+        """The example must stay useful — it exists to fix format adherence."""
+        from seclit.generate.cite import extract_markers
+        from seclit.generate.prompt import FORMAT_EXAMPLE
+
+        markers = extract_markers(FORMAT_EXAMPLE)
+        assert markers, "example must show at least one marker"
+        assert len(set(markers)) >= 2, "example should show a multi-source citation"

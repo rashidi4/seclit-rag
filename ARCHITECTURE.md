@@ -243,6 +243,32 @@ streaming, raw text is shown live for responsiveness and replaced by the
 validated text once the stream completes — the only correct order, since
 validation needs the whole answer.
 
+### What this does *not* catch
+
+`validity_rate` measures whether each marker **resolves to a chunk that was
+retrieved this turn**. It does not verify that the cited chunk actually supports
+the sentence attached to it. A model that cites a real excerpt for a claim that
+excerpt does not make scores 100%.
+
+This is not hypothetical. During browser testing the system produced a
+confident, fully-cited answer whose central claim — "one study reports a 40%
+reduction in lateral movement" — was **copied from the prompt's own formatting
+example**, where the figure had been invented as filler. Every marker was valid,
+so the answer scored 100% validity and 100% grounding.
+
+Two changes followed:
+
+1. The formatting example is now content-free placeholders
+   (`<a claim taken from the first excerpt> [^c1]`), so there is nothing
+   plausible to plagiarise. A realistic example is an instruction to copy it.
+2. This limitation is documented rather than papered over.
+
+Closing the gap properly requires entailment checking — a second pass asking
+whether chunk *N* actually supports sentence *M*. That roughly doubles inference
+cost per answer and is the natural next increment. What exists today eliminates
+*fabricated sources*, which is the more common and more damaging failure; it
+does not yet eliminate *misattributed claims*.
+
 ### Multi-turn
 
 Follow-ups ("how does that compare to the second approach?") are meaningless to

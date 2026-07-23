@@ -21,9 +21,32 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 
-# Accepts [^c1], [c1], (c1), [^c1, c2], [c1][c2], with optional whitespace.
-_MARKER_GROUP_RE = re.compile(r"[\[(]\s*\^?\s*(c\d+(?:\s*[,;]\s*\^?\s*c\d+)*)\s*[\])]", re.I)
-_MARKER_ID_RE = re.compile(r"c(\d+)", re.I)
+# Two accepted shapes, both normalised to "cN":
+#
+#   1. Caret + bare digits — [^7], [^7, 9]. Models drop the "c" prefix often
+#      enough that rejecting these silently zeroes the grounding metric, which
+#      is how this case was found. The caret is required here: without it,
+#      "(2020)" in a year citation would parse as marker c2020.
+#   2. Explicit c-prefix in any bracket — [^c1], [c1], (c1), [^c1, c3].
+#
+# Permissive about form, strict about identity. What is never relaxed is
+# whether the referenced excerpt was actually retrieved this turn.
+_MARKER_GROUP_RE = re.compile(
+    r"\[\^\s*(?P<bare>\d+(?:\s*[,;]\s*\^?\s*\d+)*)\s*\]"
+    r"|[\[(]\s*\^?\s*(?P<prefixed>c\d+(?:\s*[,;]\s*\^?\s*c?\d+)*)\s*[\])]",
+    re.I,
+)
+_MARKER_ID_RE = re.compile(r"\d+")
+
+
+def _group_text(match: re.Match[str]) -> str:
+    return match.group("bare") or match.group("prefixed") or ""
+
+
+def _ids_in(group: str) -> list[str]:
+    """Normalise a marker group's contents to ``cN`` identifiers."""
+    return [f"c{m.group(0)}" for m in _MARKER_ID_RE.finditer(group)]
+
 
 _SENTENCE_SPLIT_RE = re.compile(
     r"(?<![A-Z][a-z]\.)(?<!\bet al\.)(?<!\bFig\.)(?<!\be\.g\.)(?<!\bi\.e\.)(?<!\d\.)"
@@ -88,8 +111,8 @@ def extract_markers(text: str) -> list[str]:
     not distinct sources.
     """
     found: list[str] = []
-    for group in _MARKER_GROUP_RE.finditer(text):
-        found.extend(f"c{m.group(1)}" for m in _MARKER_ID_RE.finditer(group.group(1)))
+    for match in _MARKER_GROUP_RE.finditer(text):
+        found.extend(_ids_in(_group_text(match)))
     return found
 
 
@@ -141,7 +164,7 @@ def validate_citations(
     invalid: list[str] = []
 
     def replace_group(match: re.Match[str]) -> str:
-        ids = [f"c{m.group(1)}" for m in _MARKER_ID_RE.finditer(match.group(1))]
+        ids = _ids_in(_group_text(match))
         kept: list[str] = []
         for marker in ids:
             if marker.lower() in allowed_set:

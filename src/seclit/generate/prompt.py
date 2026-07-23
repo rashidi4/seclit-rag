@@ -52,16 +52,23 @@ CONTEXT_HEADER = "Here are the source excerpts:"
 # A worked example is the single most effective lever on format adherence.
 # Smaller local models follow a demonstrated shape far more reliably than a
 # described one — in testing, gemma3:12b intermittently produced answers with
-# no markers at all until this example was added.
-FORMAT_EXAMPLE = """Example of the required answer format:
+# no markers at all until an example was added.
+#
+# The example MUST be content-free. An earlier version used realistic prose
+# about zero trust, including an invented "40% reduction" statistic. gemma3:12b
+# reproduced it almost verbatim as a real answer, citing valid markers — so the
+# validator scored it 100% valid and 100% grounded while the headline claim came
+# from the prompt, not the corpus. A plausible example is an instruction to
+# plagiarise it. Placeholders cannot be mistaken for findings.
+FORMAT_EXAMPLE = """Example of the required answer format (placeholder text — \
+never reuse these words or invent statistics like them):
 
-  Continuous verification replaces one-time perimeter authentication [^c2]. \
-Each request is re-evaluated against device posture and identity signals \
-before access is granted [^c2, c5]. One study reports a 40% reduction in \
-lateral movement under this model [^c5].
+  <a claim taken from the first excerpt> [^c1]. <a claim supported by two \
+excerpts together> [^c1, c3]. <a further claim from another excerpt> [^c3].
 
-Note: every sentence ends with a marker, and the markers contain nothing but \
-excerpt numbers."""
+Every sentence ends with a marker, and each marker contains nothing but excerpt \
+numbers. Replace the angle-bracket placeholders with real content drawn from \
+the excerpts above."""
 
 QUESTION_TEMPLATE = """{header}
 
