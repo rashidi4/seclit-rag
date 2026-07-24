@@ -74,6 +74,27 @@ _MULTI_NEWLINE_RE = re.compile(r"\n{3,}")
 _MULTI_SPACE_RE = re.compile(r"[ \t]{2,}")
 _WORD_RE = re.compile(r"[A-Za-z]+")
 
+# Compounds a document may only ever use at a line break, leaving nothing
+# inline for the self-disambiguation pass to learn from. Measured misses on the
+# corpus were concentrated here: "denial-of-service", "well-known" and
+# "on-the-fly" were being welded into "denialof", "wellknown", "thefly".
+#
+# Kept deliberately short. This is a backstop for the tail, not a dictionary —
+# a general wordlist is the wrong tool for text whose important terms
+# ("cluster-based", "vulnerability-triggering", "hex-rays") no wordlist
+# contains. The document remains the primary oracle.
+_COMMON_COMPOUNDS = frozenset(
+    """
+    well-known well-defined well-formed well-suited so-called state-of-the-art
+    on-the-fly out-of-band out-of-scope end-to-end peer-to-peer man-in-the-middle
+    denial-of-service proof-of-concept proof-of-work point-to-point
+    real-time run-time compile-time third-party open-source closed-source
+    cross-site cross-domain cross-platform side-channel zero-day zero-trust
+    fine-grained coarse-grained large-scale small-scale high-level low-level
+    read-only write-only single-sign-on multi-factor two-factor
+    """.split()
+)
+
 # Genuine one- and two-letter English words, so they aren't counted as
 # extraction damage.
 _REAL_SHORT_WORDS = frozenset(
@@ -133,12 +154,32 @@ def collect_hyphenated(text: str) -> set[str]:
     return {m.group(0).lower() for m in _INLINE_HYPHEN_RE.finditer(text)}
 
 
+def is_compound(pair: str, compounds: set[str]) -> bool:
+    """Decide whether ``left-right`` is a real compound rather than a wrapped word.
+
+    Three sources of evidence, cheapest first:
+
+    1. The document uses it hyphenated inline. Strongest signal — it is the
+       paper's own usage.
+    2. It is the head of a longer compound the document uses, so a break inside
+       ``denial-of-service`` at ``denial-|of`` is still recognised.
+    3. It is a common compound that documents often only ever wrap on.
+    """
+    pair = pair.lower()
+    if pair in compounds or pair in _COMMON_COMPOUNDS:
+        return True
+    prefix = f"{pair}-"
+    if any(known.startswith(prefix) for known in compounds):
+        return True
+    return any(known.startswith(prefix) for known in _COMMON_COMPOUNDS)
+
+
 def _dehyphenate(text: str, compounds: set[str]) -> str:
     """Resolve hyphens at line breaks, preferring the document's own usage."""
 
     def resolve(match: re.Match[str]) -> str:
         left, right = match.group(1), match.group(2)
-        if f"{left}-{right}".lower() in compounds:
+        if is_compound(f"{left}-{right}", compounds):
             return f"{left}-{right}"
         return f"{left}{right}"
 
