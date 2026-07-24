@@ -113,6 +113,38 @@ def _cmd_ask(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_summarize(args: argparse.Namespace) -> int:
+    from seclit.summarize import summarize_paper
+
+    summary = summarize_paper(args.paper_id)
+    if not summary.chunks:
+        print(summary.text, file=sys.stderr)
+        return 1
+
+    print(f"{summary.title}\n{'-' * min(len(summary.title), 78)}")
+    print(summary.text)
+
+    if summary.chunks:
+        print("\nSections summarised")
+        for chunk in summary.chunks:
+            if chunk.marker:
+                print(f"  [^{chunk.marker}] {chunk.page_label}  {chunk.section or ''}".rstrip())
+
+    if summary.report:
+        print(f"\ncitation validity {summary.report.validity_rate:.0%}")
+    return 0
+
+
+def _cmd_papers(args: argparse.Namespace) -> int:
+    from seclit.ingest.store import Catalog
+
+    for record in Catalog(settings.catalog_path).all_papers():
+        if args.subtopic and record.subtopic != args.subtopic:
+            continue
+        print(f"{record.paper_id:14s} {(record.subtopic or ''):24s} {record.title[:60]}")
+    return 0
+
+
 def _cmd_eval(args: argparse.Namespace) -> int:
     from seclit.evaluate import run_evaluation
 
@@ -148,6 +180,14 @@ def main(argv: list[str] | None = None) -> int:
         choices=["dense", "sparse", "hybrid", "hybrid_rerank"],
     )
     p_ask.set_defaults(func=_cmd_ask)
+
+    p_sum = sub.add_parser("summarize", help="summarise one indexed paper")
+    p_sum.add_argument("paper_id", help="arXiv id as listed by `seclit papers`")
+    p_sum.set_defaults(func=_cmd_summarize)
+
+    p_papers = sub.add_parser("papers", help="list indexed papers")
+    p_papers.add_argument("--subtopic", help="filter to one area")
+    p_papers.set_defaults(func=_cmd_papers)
 
     p_eval = sub.add_parser("eval", help="run retrieval evaluation")
     p_eval.add_argument("--gold", default="eval/gold_set.jsonl")

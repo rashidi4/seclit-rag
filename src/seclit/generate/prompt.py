@@ -105,12 +105,16 @@ SUMMARY_PROMPT = """Summarise the following excerpts from the paper "{title}".
 Cover, where the excerpts support it: the problem addressed, the approach taken, the \
 main findings, and any stated limitations.
 
-Cite each point with its excerpt marker, exactly as [^c1]. Do not add information \
-beyond the excerpts.
-
 {context}
 
-Summary:"""
+---
+
+{example}
+
+---
+
+Write the summary now. Every point must end with a [^c...] marker naming the excerpt \
+it came from. Start with the substance — no preamble such as "Here is a summary"."""
 
 
 def build_system_prompt(chunks: list[RetrievedChunk]) -> str:
@@ -158,7 +162,7 @@ def build_rewrite_prompt(question: str, history: list[dict[str, str]]) -> str:
 
 
 def build_summary_prompt(title: str, chunks: list[RetrievedChunk]) -> str:
-    return SUMMARY_PROMPT.format(title=title, context=build_context(chunks))
+    return SUMMARY_PROMPT.format(title=title, context=build_context(chunks), example=FORMAT_EXAMPLE)
 
 
 NO_CONTEXT_ANSWER = (

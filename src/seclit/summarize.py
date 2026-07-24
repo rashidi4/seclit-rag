@@ -19,7 +19,7 @@ from dataclasses import dataclass
 
 from seclit.config import Settings, settings
 from seclit.generate.cite import CitationReport, validate_citations
-from seclit.generate.prompt import build_summary_prompt
+from seclit.generate.prompt import build_summary_prompt, build_system_prompt
 from seclit.generate.providers import LLMProvider, get_provider
 from seclit.ingest.store import ChunkStore
 from seclit.models import RetrievedChunk
@@ -89,7 +89,13 @@ def summarize_paper(
         chunk.marker = f"c{position}"
 
     title = selected[0].title or paper_id
-    raw = provider.complete(build_summary_prompt(title, selected))
+    # The system prompt carries the citation contract. Omitting it here meant
+    # the summary path silently bypassed the guarantee the rest of the system
+    # is built on — summaries came back with no markers at all.
+    raw = provider.complete(
+        build_summary_prompt(title, selected),
+        system=build_system_prompt(selected),
+    )
     report = validate_citations(raw, {c.marker for c in selected})
 
     return Summary(

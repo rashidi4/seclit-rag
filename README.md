@@ -68,6 +68,8 @@ Ask something from the terminal instead:
 
 ```bash
 uv run seclit ask "How does zero trust limit lateral movement?"
+uv run seclit papers                  # list what is indexed
+uv run seclit summarize 2309.03582    # summarise one paper, with citations
 ```
 
 ---

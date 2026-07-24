@@ -37,6 +37,13 @@ def load_stats() -> dict:
     return IngestPipeline().stats()
 
 
+@st.cache_data(ttl=60)
+def load_papers():
+    from seclit.ingest.store import Catalog
+
+    return Catalog(settings.catalog_path).all_papers()
+
+
 def render_sources(chunks, key_prefix: str) -> None:
     """Render the cited sources with page numbers and the underlying excerpt."""
     if not chunks:
@@ -140,6 +147,24 @@ with st.sidebar:
         st.rerun()
 
     st.divider()
+
+    # Summarisation is a distinct task from question answering: there is no
+    # query to retrieve against, so excerpts are selected by position across
+    # the paper rather than by relevance.
+    st.caption("Summarise a paper")
+    papers = load_papers()
+    if papers:
+        choice = st.selectbox(
+            "Paper",
+            options=[p.paper_id for p in papers],
+            format_func=lambda pid: next((p.title[:60] for p in papers if p.paper_id == pid), pid),
+            label_visibility="collapsed",
+        )
+        if st.button("Summarise", use_container_width=True):
+            st.session_state.pending_summary = choice
+            st.rerun()
+
+    st.divider()
     st.caption(
         f"Embeddings `{settings.embedding_model}`  \n"
         f"Reranker `{settings.reranker_model}`  \n"
@@ -168,6 +193,34 @@ for i, entry in enumerate(st.session_state.history):
                 st.caption(f"Searched for: _{answer.search_query}_")
             render_sources(answer.cited_chunks, key_prefix=f"h{i}")
             render_diagnostics(answer)
+
+if pending := st.session_state.pop("pending_summary", None):
+    from seclit.summarize import summarize_paper
+
+    with st.chat_message("assistant"):
+        with st.spinner("Reading the paper…"):
+            summary = summarize_paper(
+                pending, store=engine.retriever.store, provider=engine.provider
+            )
+        st.markdown(f"### {summary.title}")
+        st.markdown(summary.text)
+        render_sources(
+            [
+                c
+                for c in summary.chunks
+                if c.marker
+                in {m.lower() for m in (summary.report.valid_markers if summary.report else [])}
+            ],
+            key_prefix=f"sum-{pending}",
+        )
+        if summary.report:
+            st.caption(
+                f"Summarised {len(summary.chunks)} excerpts spanning the paper · "
+                f"citation validity {summary.report.validity_rate:.0%}"
+            )
+    st.session_state.history.append(
+        {"role": "assistant", "content": f"### {summary.title}\n\n{summary.text}", "answer": None}
+    )
 
 if question := st.chat_input("Ask about the indexed papers…"):
     st.session_state.history.append({"role": "user", "content": question})
